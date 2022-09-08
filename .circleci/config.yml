@@ -26,14 +26,16 @@ jobs:
      #     root: ~/project
       #    paths:
        #     - .
-    - run: 
-        command: ls
+    steps:
+      - run: 
+          command: ls
 
 
 workflows:
   test_my_app:
     jobs:
       - build_and_test
+      - build_docker_image
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
