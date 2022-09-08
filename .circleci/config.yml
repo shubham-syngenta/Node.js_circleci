@@ -18,6 +18,8 @@ jobs:
           paths:
             - .
   test:
+    executor: node/default
+    resource_class: medium
     steps:
       - run: 
           command: ls
