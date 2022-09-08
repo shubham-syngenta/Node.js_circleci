@@ -18,6 +18,17 @@ jobs:
           root: ~/project
           paths:
             - .
+jobs:
+  build_docker_image:
+    #executor: node/default
+    #resource_class: medium
+    #- persist_to_workspace:
+     #     root: ~/project
+      #    paths:
+       #     - .
+    - run: 
+        command: ls
+
 
 workflows:
   test_my_app:
