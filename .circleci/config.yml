@@ -26,10 +26,11 @@ jobs:
             - .
   test:
     executor: my-executor
-    - attach_workspace:
+    
+    steps:
+      - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: /tmp/project
-    steps:
       - run: 
           command: ls
   
