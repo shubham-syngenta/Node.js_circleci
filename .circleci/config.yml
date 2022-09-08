@@ -17,7 +17,7 @@ jobs:
           root: ~/project
           paths:
             - .
-  build_docker_image:
+  test:
     steps:
       - run: 
           command: ls
@@ -28,7 +28,7 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test
-      - build_docker_image
+      - test
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
