@@ -6,13 +6,14 @@ orbs:
 jobs:
   build_and_test:
     executor: node/default
+    resource_class: medium
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
-      - run:
-          command: npm index.js
-          name: Run tests
+      #- run:
+       #   command: npm index.js
+        #  name: Run tests
       - run:
           command: npm build
           name: Build app
