@@ -6,7 +6,7 @@ executors:
     docker:
       - image: circleci/node
     resource_class: medium
-    working_directory: /tmp
+    working_directory: /workspace
 
 
 
@@ -30,7 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /tmp/project
+          at: /workspace/project
       - run: 
           command: ls
   
@@ -41,6 +41,9 @@ workflows:
     jobs:
       - build_and_test
       - test
+          requires:
+            - build_and_test
+
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
