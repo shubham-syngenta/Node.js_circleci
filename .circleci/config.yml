@@ -4,7 +4,7 @@ orbs:
 executors:
   my-executor:
     docker:
-      - image: node/default
+      - image: circleci/node
     resource_class: medium
     working_directory: /tmp
 
