@@ -6,7 +6,7 @@ executors:
     docker:
       - image: circleci/node
     resource_class: medium
-    working_directory: ./workspace
+    working_directory: /home/workspace
 
 
 
@@ -30,7 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: ./workspace/project
+          at: /home/workspace/project
       - run: 
           command: ls
   
