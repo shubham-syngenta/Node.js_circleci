@@ -1,45 +1,52 @@
 version: 2.1
-
+orbs:
+  node: circleci/node@5.0.2
 executors:
   my-executor:
     docker:
-      - image: buildpack-deps:jessie
+      - image: circleci/node
+    resource_class: medium
     working_directory: /tmp
 
+
+
 jobs:
-  flow:
+  build_and_test:
     executor: my-executor
     steps:
-      - run: mkdir -p workspace
-      - run: echo "Hello, world!" > workspace/echo-output
-
-      # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm test 
+          name: Run tests
       - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          # taken to be the root directory of the workspace.
           root: workspace
-          # Must be relative path from root
           paths:
             - echo-output
-
-  downstream:
+  test:
     executor: my-executor
+    
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: /tmp/workspace
+      - run: 
+          command: ls
+  
 
-      - run: |
-          if [[ `cat /tmp/workspace/echo-output` == "Hello, world!" ]]; then
-            echo "It worked!";
-          else
-            echo "Nope!"; exit 1
-          fi
 
 workflows:
-  btd:
+  test_my_app:
     jobs:
-      - flow
-      - downstream:
+      - build_and_test
+      - test:
           requires:
-            - flow
+            - build_and_test
+
+      #- deploy:
+       #   requires:
+        #    - build_and_test # only deploy if the build_and_test job has completed
+         # filters:
+          #  branches:
+           #   only: main # only deploy when on main
