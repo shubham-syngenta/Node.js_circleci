@@ -12,7 +12,8 @@ executors:
 
 jobs:
   build_and_test:
-    executor: node/default
+    #executor: node/default
+    resource_class: medium
     working_directory: /home/app
     steps:
       - checkout
@@ -26,7 +27,8 @@ jobs:
           paths:
             - echo-output
   test:
-    executor: node/default
+    #executor: node/default
+    resource_class: medium
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
