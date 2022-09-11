@@ -12,7 +12,8 @@ executors:
 
 jobs:
   build_and_test:
-    executor: my-executor
+    executor: node/default
+    working_directory: /tmp
     steps:
       - checkout
       - node/install-packages:
@@ -25,8 +26,7 @@ jobs:
           paths:
             - echo-output
   test:
-    executor: my-executor
-    
+    executor: node/default
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
