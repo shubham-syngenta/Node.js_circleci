@@ -13,7 +13,7 @@ executors:
 jobs:
   build_and_test:
     executor: node/default
-    working_directory: /home
+    working_directory: /myapp
     steps:
       - checkout
       - node/install-packages:
@@ -30,7 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /home/workspace
+          at: /myapp/workspace
       - run: 
           command: ls
   
