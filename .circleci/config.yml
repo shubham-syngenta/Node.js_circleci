@@ -6,7 +6,7 @@ executors:
     docker:
       - image: circleci/node
     resource_class: medium
-    working_directory: /home/workspace
+    working_directory: ./workspace
 
 
 
@@ -21,7 +21,7 @@ jobs:
           command: npm test 
           name: Run tests
       - persist_to_workspace:
-          root: ~/project
+          root: ./project
           paths:
             - .
   test:
@@ -30,7 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /home/workspace/project
+          at: ./workspace/project
       - run: 
           command: ls
   
