@@ -13,7 +13,7 @@ executors:
 jobs:
   build_and_test:
     executor: node/default
-    working_directory: /home/app
+    resource_class: medium
     steps:
       - checkout
       - node/install-packages:
