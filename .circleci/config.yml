@@ -6,8 +6,8 @@ executors:
     docker:
       - image: circleci/node
     resource_class: medium
+
 dev_only_filters: &dev_only_filters
-  profile: dev
   filters:
     tags:
       only: /^v.*/
