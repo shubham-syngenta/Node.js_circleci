@@ -43,7 +43,9 @@ workflows:
             - build_and_test
           filters:
             tags:
-              only: DEV_NEV
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
