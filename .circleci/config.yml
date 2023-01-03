@@ -6,7 +6,13 @@ executors:
     docker:
       - image: circleci/node
     resource_class: medium
-
+dev_only_filters: &dev_only_filters
+  profile: dev
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
 
 
 
@@ -38,11 +44,8 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+        <<: *dev_only_filters
+          
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
