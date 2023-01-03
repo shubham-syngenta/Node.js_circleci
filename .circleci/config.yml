@@ -37,15 +37,12 @@ jobs:
 workflows:
   test_my_app:
     jobs:
-      - build_and_test
-      - test:
-          requires:
-            - build_and_test
+      - build_and_test:
           filters:
             tags:
               only: /^v.*/
             branches:
-              only: main
+              ignore: /.*/
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
