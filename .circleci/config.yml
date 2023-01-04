@@ -72,7 +72,7 @@ jobs:
     parameters:
       profile:
         type: string
-      default: dev
+        default: dev
     steps:
       - checkout
       - kubernetes/install-kubectl:
