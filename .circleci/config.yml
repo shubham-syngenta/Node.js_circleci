@@ -14,15 +14,23 @@ jobs:
   build_and_test:
     executor: my-executor
     steps:
+      #- checkout
+      #- node/install-packages:
+      #    pkg-manager: npm
       - run:
-          command: echo $CIRCLE_TAG
-  #test:
-   # executor: my-executor
-    #steps:
-     # - attach_workspace:
-      #    at: ~/project
-      #- run: 
-      #    command: ls
+          command:  echo $CIRCLE_TAG #npm test 
+          name: Run tests
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
+  test:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: 
+          command: ls
   
 
 
@@ -30,12 +38,14 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test
+      - test:
+          requires:
+            - build_and_test
           filters:
             tags:
-              only: /^dev.*/
+              only: /^v.*/
             branches:
-              ignore: /.*/
-
+              only: main
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
