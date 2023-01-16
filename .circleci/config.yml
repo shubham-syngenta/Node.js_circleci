@@ -16,13 +16,13 @@ jobs:
     steps:
       - run:
           command: echo $CIRCLE_TAG
-  test:
-    executor: my-executor
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - run: 
-          command: ls
+  #test:
+   # executor: my-executor
+    #steps:
+     # - attach_workspace:
+      #    at: ~/project
+      #- run: 
+      #    command: ls
   
 
 
