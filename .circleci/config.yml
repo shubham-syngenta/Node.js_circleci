@@ -30,11 +30,11 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test
-        filters:
-          tags:
-            only: /^dev.*/
-          branches:
-            ignore: /.*/
+          filters:
+            tags:
+              only: /^dev.*/
+            branches:
+              ignore: /.*/
 
       #- deploy:
        #   requires:
