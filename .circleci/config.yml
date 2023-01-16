@@ -38,8 +38,8 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test:
-          requires:
-            - build_and_test
+          #requires:
+          #  - build_and_test
           filters:
             tags:
               only: /^dev.*/
