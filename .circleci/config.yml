@@ -31,10 +31,10 @@ workflows:
     jobs:
       - build_and_test
         filters:
-            tags:
-              only: /^dev.*/
-            branches:
-              ignore: /.*/
+          tags:
+            only: /^dev.*/
+          branches:
+            ignore: /.*/
 
       #- deploy:
        #   requires:
