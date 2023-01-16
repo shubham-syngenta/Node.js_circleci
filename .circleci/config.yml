@@ -49,6 +49,7 @@ jobs:
         type: string
     steps:
       - aws-cli/setup
+      - echo $CIRCLE_TAG
       - checkout
       - setup_remote_docker:
           version: 19.03.13
