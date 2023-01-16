@@ -30,7 +30,7 @@ workflows:
   test_my_app:
     jobs:
       - build_and_test
-      filters:
+        filters:
             tags:
               only: /^dev.*/
             branches:
