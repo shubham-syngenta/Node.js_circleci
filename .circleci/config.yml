@@ -37,9 +37,10 @@ qa_only_filters: &qa_only_filters
    - context1
    - context2
   filters:
+    tags:
+      only: /^dev.*/
     branches:
-      only:
-        - main 
+      ignore: /.*/
 
 workflows:
   test_my_app:
