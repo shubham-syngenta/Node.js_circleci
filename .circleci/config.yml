@@ -158,19 +158,19 @@ workflows:
   build-and-deploy-dev:
     jobs:
       - build-and-push-image:
-        <<: *dev_only_filters
+          <<: *dev_only_filters
       - build-and-push-image:
-        <<: *dev_only_filters
+          <<: *dev_only_filters
 
 ####QA####
   build-and-deploy-qa:
     jobs:
       - test:
-        <<: *qa_only_filters
+          <<: *qa_only_filters
       - build-and-push-image:
-        <<: *qa_only_filters
+          <<: *qa_only_filters
       - build-and-push-image:
-        <<: *qa_only_filters
+          <<: *qa_only_filters
 
 ####STAGE####
   build-and-deploy-stage:
@@ -187,6 +187,22 @@ workflows:
         <<: *prod_only_filters
       - build-and-push-image:
         <<: *prod_only_filters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
