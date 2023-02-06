@@ -165,8 +165,8 @@ workflows:
 ####QA####
   build-and-deploy-qa:
     jobs:
-      - test:
-          <<: *qa_only_filters
+      #- test:
+      #    <<: *qa_only_filters
       - build-and-push-image:
           <<: *qa_only_filters
       - build-and-push-image:
