@@ -176,17 +176,17 @@ workflows:
   build-and-deploy-stage:
     jobs:
       - build-and-push-image:
-        <<: *stage_only_filters
+          <<: *stage_only_filters
       - build-and-push-image:
-        <<: *stage_only_filters
+          <<: *stage_only_filters
 
 ####PROD##### 
   build-and-deploy-prod:
     jobs:
       - build-and-push-image:
-        <<: *prod_only_filters
+          <<: *prod_only_filters
       - build-and-push-image:
-        <<: *prod_only_filters
+          <<: *prod_only_filters
 
 
 
