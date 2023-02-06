@@ -36,7 +36,6 @@ qa_only_filters: &qa_only_filters
   context: 
    - context1
    - context2
-  profile: qa
   filters:
     branches:
       only:
