@@ -1,0 +1,194 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@3.4.2
+  helm: circleci/helm@1.2.0
+  aws-cli: circleci/aws-cli@1.4.0
+  aws-ecr: circleci/aws-ecr@6.15.3
+  kubernetes: circleci/kubernetes@0.11.2
+  sonarcloud: sonarsource/sonarcloud@1.0.3
+parameters:
+  image-tag:
+    type: string
+    default: "latest"
+  project-dir:
+    type: string
+    default: ./
+  registry:
+    type: string
+    default: 836163894025.dkr.ecr.eu-central-1.amazonaws.com
+
+commands:
+  setup-aws-profiles:
+    steps:
+      - run:
+          name: aws profiles setup
+          command: |
+            npx @syngenta-digital/acp --file ./aws/profiles.yml
+            aws sts get-caller-identity
+
+###Tage_based Fiilters###
+dev_only_filters: &dev_only_filters
+  context:
+    - cropwise-spray-assist-cicd
+    - shared-epsagon-token
+  profile: dev
+  tag: latest-dev
+  filters:
+    tags:
+      only: /^dev.*/
+    branches:
+      ignore: /.*/
+
+qa_only_filters: &qa_only_filters
+  context:
+    - cropwise-spray-assist-cicd
+    - shared-epsagon-token
+    - shared-sonarcloud-token
+  profile: qa
+  tag: latest-qa
+  filters:
+    tags:
+      only: /^qa.*/
+    branches:
+      ignore: /.*/
+
+stage_only_filters: &stage_only_filters
+  context:
+    - cropwise-spray-assist-cicd
+    - shared-epsagon-token
+  profile: stage
+  tag: latest-stage
+  filters:
+    tags:
+      only: /^stage.*/
+    branches:
+      ignore: /.*/
+
+
+prod_only_filters: &prod_only_filters
+  context:
+    - cropwise-spray-assist-cicd
+    - shared-epsagon-token
+  profile: prod
+  tag: latest-prod
+  filters:
+    tags:
+      only: /^prod.*/
+    branches:
+      ignore: /.*/
+  
+
+
+jobs:
+
+  test:  ##QA_ONLY##
+    docker:
+      - image: cimg/node:17.6.0
+    resource_class: large
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Run Tests and Collect Coverage Reports
+          command: |
+            npm install
+            npm run test:coverage
+      - sonarcloud/scan
+
+  build-and-push-image:
+    docker:
+      - image: circleci/node:12.10.0
+    parameters:
+      profile:
+        type: string
+      tag:
+        type: string
+    steps:
+      - aws-cli/setup
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - setup-aws-profiles
+      - aws-ecr/build-and-push-image:
+          account-url: QA_SPRAYASSIST_ECR
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          dockerfile: Dockerfile
+          profile-name: <<parameters.profile>>
+          path: .
+          region: DEV_AWS_REGION
+          repo: spray-assist-admin
+          tag: <<parameters.tag>>
+
+  deploy-in-dev-eks:
+    docker:
+      - image: "cimg/base:stable"
+    parameters:
+      profile:
+        type: string
+        default: dev
+    steps:
+      - checkout
+      - kubernetes/install-kubectl
+      - aws-cli/setup
+      - helm/install-helm-client:
+          version: v3.2.4
+      - run: echo -e "[profile dev]\nrole_arn = arn:aws:iam::836163894025:role/CICD\nsource_profile=default" >> ~/.aws/config
+      - run: echo -e "[profile qa]\nrole_arn = arn:aws:iam::329143583580:role/CICD\nsource_profile=default" >> ~/.aws/config
+      # - run: echo -e "[profile prod]\nrole_arn = arn:aws:iam::461741163030:role/CICD\nsource_profile=default" >> ~/.aws/config
+      - run: aws sts get-caller-identity
+      - run: aws eks --region ${DEV_AWS_REGION} update-kubeconfig --name <<parameters.profile>>-spary-assist-k8s-cluster --profile <<parameters.profile>>
+      - run: cat ~/.kube/config
+      - run: cat ~/.aws/config
+      - run: cat ~/.aws/credentials
+      - run: kubectl get nodes
+      - run: helm version
+      - run: printenv
+      - run: ls -la
+      # - run: helm install --debug --dry-run spray-assist-admin ./chart
+      - run: helm upgrade --install spray-assist-admin ./chart -f <<pipeline.parameters.project-dir>>/chart/<<parameters.profile>>-values.yaml -n spray-assist-admin  --create-namespace  --debug
+      - run: kubectl rollout status deployment/spray-assist-admin-deployment -n spray-assist-admin
+
+
+
+
+workflows:
+####DEV####
+  build-and-deploy-dev:
+    jobs:
+      - build-and-push-image:
+        <<: *dev_only_filters
+      - build-and-push-image:
+        <<: *dev_only_filters
+
+####QA####
+  build-and-deploy-qa:
+    jobs:
+      - test:
+        <<: *qa_only_filters
+      - build-and-push-image:
+        <<: *qa_only_filters
+      - build-and-push-image:
+        <<: *qa_only_filters
+
+####STAGE####
+  build-and-deploy-stage:
+    jobs:
+      - build-and-push-image:
+        <<: *stage_only_filters
+      - build-and-push-image:
+        <<: *stage_only_filters
+
+####PROD##### 
+  build-and-deploy-prod:
+    jobs:
+      - build-and-push-image:
+        <<: *prod_only_filters
+      - build-and-push-image:
+        <<: *prod_only_filters
+
+
+
+
+
