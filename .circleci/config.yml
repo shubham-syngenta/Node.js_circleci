@@ -18,7 +18,7 @@ jobs:
       #- node/install-packages:
       #    pkg-manager: npm
       - run:
-          command:  echo $CIRCLE_TAG #npm test 
+          command:  echo $Value1 && echo $Value2 #npm test 
           name: Run tests
       - persist_to_workspace:
           root: ~/project
@@ -32,19 +32,21 @@ jobs:
       - run: 
           command: ls
   
-
+qa_only_filters: &qa_only_filters
+  context: 
+   - context1
+   - context2
+  profile: qa
+  filters:
+    branches:
+      only:
+        - qa-infra  
 
 workflows:
   test_my_app:
     jobs:
       - build_and_test:
-          #requires:
-          #  - build_and_test
-          filters:
-            tags:
-              only: /^dev.*/
-            branches:
-              ignore: /.*/
+          <<: *qa_only_filters
       #- deploy:
        #   requires:
         #    - build_and_test # only deploy if the build_and_test job has completed
