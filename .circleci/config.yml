@@ -39,7 +39,7 @@ qa_only_filters: &qa_only_filters
   filters:
     branches:
       only:
-        - qa-infra  
+        - main 
 
 workflows:
   test_my_app:
