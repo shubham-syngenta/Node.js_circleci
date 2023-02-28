@@ -64,7 +64,6 @@ stage_only_filters: &stage_only_filters
     branches:
       ignore: /.*/
 
-
 prod_only_filters: &prod_only_filters
   context:
     - cropwise-spray-assist-cicd
@@ -76,14 +75,16 @@ prod_only_filters: &prod_only_filters
       only: /^prod.*/
     branches:
       ignore: /.*/
-  
-
 
 jobs:
-
-  test:  ##QA_ONLY##
+  test: ##QA_ONLY##
     docker:
       - image: cimg/node:17.6.0
+    parameters:
+      profile:
+        type: string
+      tag:
+        type: string
     resource_class: large
     steps:
       - checkout
@@ -114,6 +115,7 @@ jobs:
           account-url: QA_SPRAYASSIST_ECR
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          #extra-build-args: "--build-arg ENV =<<parameter.profile>>"
           dockerfile: Dockerfile
           profile-name: <<parameters.profile>>
           path: .
@@ -121,24 +123,26 @@ jobs:
           repo: spray-assist-admin
           tag: <<parameters.tag>>
 
-  deploy-in-dev-eks:
+  deploy-in-eks:
     docker:
       - image: "cimg/base:stable"
     parameters:
       profile:
         type: string
-        default: dev
+      tag:
+        type: string
+
     steps:
       - checkout
       - kubernetes/install-kubectl
       - aws-cli/setup
       - helm/install-helm-client:
           version: v3.2.4
-      - run: echo -e "[profile dev]\nrole_arn = arn:aws:iam::836163894025:role/CICD\nsource_profile=default" >> ~/.aws/config
-      - run: echo -e "[profile qa]\nrole_arn = arn:aws:iam::329143583580:role/CICD\nsource_profile=default" >> ~/.aws/config
-      # - run: echo -e "[profile prod]\nrole_arn = arn:aws:iam::461741163030:role/CICD\nsource_profile=default" >> ~/.aws/config
+      # - run: echo -e "[profile dev]\nrole_arn = arn:aws:iam::836163894025:role/CICD\nsource_profile=default" >> ~/.aws/config
+      # - run: echo -e "[profile qa]\nrole_arn = arn:aws:iam::329143583580:role/CICD\nsource_profile=default" >> ~/.aws/config
+      - run: echo -e "[profile stage]\nrole_arn = arn:aws:iam::329143583580:role/CICD\nsource_profile=default" >> ~/.aws/config
       - run: aws sts get-caller-identity
-      - run: aws eks --region ${DEV_AWS_REGION} update-kubeconfig --name <<parameters.profile>>-spary-assist-k8s-cluster --profile <<parameters.profile>>
+      - run: aws eks --region ${DEV_AWS_REGION} update-kubeconfig --name spray-assist-<<parameters.profile>> --profile <<parameters.profile>>
       - run: cat ~/.kube/config
       - run: cat ~/.aws/config
       - run: cat ~/.aws/credentials
@@ -150,42 +154,47 @@ jobs:
       - run: helm upgrade --install spray-assist-admin ./chart -f <<pipeline.parameters.project-dir>>/chart/<<parameters.profile>>-values.yaml -n spray-assist-admin  --create-namespace  --debug
       - run: kubectl rollout status deployment/spray-assist-admin-deployment -n spray-assist-admin
 
-
-
-
 workflows:
-####DEV####
+  ####DEV####
   build-and-deploy-dev:
     jobs:
       - build-and-push-image:
           <<: *dev_only_filters
-      - build-and-push-image:
+      - deploy-in-eks:
           <<: *dev_only_filters
+          requires:
+            - build-and-push-image
 
-####QA####
+  ####QA####
   build-and-deploy-qa:
     jobs:
       #- test:
-      #    <<: *qa_only_filters
+       #   <<: *qa_only_filters
       - build-and-push-image:
           <<: *qa_only_filters
-      - build-and-push-image:
+          requires:
+            - test
+      - deploy-in-eks:
           <<: *qa_only_filters
+          requires:
+            - build-and-push-image
 
-####STAGE####
+  ####STAGE####
   build-and-deploy-stage:
     jobs:
       - build-and-push-image:
           <<: *stage_only_filters
-      - build-and-push-image:
+      - deploy-in-eks:
           <<: *stage_only_filters
+          requires:
+            - build-and-push-image
 
-####PROD##### 
+  ####PROD#####
   build-and-deploy-prod:
     jobs:
       - build-and-push-image:
           <<: *prod_only_filters
-      - build-and-push-image:
+      - deploy-in-eks:
           <<: *prod_only_filters
-
-
+          requires:
+            - build-and-push-image
