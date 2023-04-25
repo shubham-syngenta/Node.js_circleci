@@ -15,13 +15,13 @@ defaults: &defaults
   working_directory: ~/cdframework
 
 
-dev_only_filters: &dev_only_filters
+filters_dev: &dev_only_filters
   profile: dev
 
-qa_only_filters: &qa_only_filters
+filters_qa: &qa_only_filters
   profile: qa
 
-prod_only_filters: &prod_only_filters
+filters_prod: &prod_only_filters
   profile: prod
 
 
@@ -41,6 +41,6 @@ workflows:
   build-and-deploy:
     jobs:
       - build-and-push-image:
-          <<: *${ENV}_only_filters
+          <<: *$filters_${ENV}
 
     
