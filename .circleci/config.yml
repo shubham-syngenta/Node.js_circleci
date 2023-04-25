@@ -41,6 +41,6 @@ workflows:
   build-and-deploy:
     jobs:
       - build-and-push-image:
-          <<: *{ENV}_only_filters
+          <<: *${ENV}_only_filters
 
     
