@@ -32,7 +32,7 @@ jobs:
       profile:
         type: string
     steps:
-      - run: printenv
+      - run: echo <<parameters.profile>>
    
 
   
