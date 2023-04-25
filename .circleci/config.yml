@@ -17,12 +17,15 @@ defaults: &defaults
 
 filters_dev: &dev_only_filters
   profile: dev
+  project: demo_dev
 
 filters_qa: &qa_only_filters
   profile: qa
+  project: demo_qa
 
 filters_prod: &prod_only_filters
   profile: prod
+  project: demo
 
 
 jobs:
@@ -31,8 +34,11 @@ jobs:
     parameters:
       profile:
         type: string
+      project:
+        type: string
     steps:
       - run: echo <<parameters.profile>>
+      - run: echo <parameters.project>>
    
 
   
@@ -41,6 +47,6 @@ workflows:
   build-and-deploy:
     jobs:
       - build-and-push-image:
-          <<: *filters_${ENV}
+          <<: *filters_dev
 
     
