@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: Node.js_circleci
+  annotations:
+    github.com/project-slug: shubham-syngenta/Node.js_circleci
+spec:
+  type: other
+  lifecycle: unknown
+  owner: guests
