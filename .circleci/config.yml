@@ -32,7 +32,7 @@ jobs:
       profile:
         type: string
     steps:
-      - run: printenv | grep profile
+      - run: printenv
    
 
   
